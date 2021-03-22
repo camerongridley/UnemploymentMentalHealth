@@ -165,7 +165,7 @@ So I will be sure to stratify the data when splitting it for training and testin
 Nothing has a particularly high correlation so there is no clear need to eliminate a feature for it's collinearity with the target.
 
 ### Collinearity Between Features
-<img src='img/feature-feature-corr.png'>
+<img src='img/top_10_feat_feat_corr.png'>
 
 ### Skew of Univariate Distributions
 Looking at the univatiate skew tells us how close each feature's distribution is to normal. 
