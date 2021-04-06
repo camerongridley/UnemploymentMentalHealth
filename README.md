@@ -1,6 +1,12 @@
 # Unemployment and Mental Health
 <img src='img/unemploy1.jpeg'>
 
+## The Goal
+The purpose of this repo is to show my thought process and workflow for tackling a new data science project. I have chosen a classification problem that has messy data and is balanced combination of numerical and categorical data to fully illustrate all steps in the data cleaning, preprocessing and modeling steps of a project. Thus, it is highly tecnhcal and <b>not an example of a report to be delivered to non-data science teams or stakeholders.</b>
+
+I have written up the main points in this README document and the detailed steps can be seen in the <a href='http://localhost:8888/notebooks/Projects/UnemploymentMentalHealth/notebooks/ModelingV3.ipynb'>EDA</a> and <a href='http://localhost:8888/notebooks/Projects/UnemploymentMentalHealth/notebooks/ModelingV3.ipynb'>Modeling</a> notebooks.
+
+
 ## The Problem
 
 There have been many negative impacts of COVID-19 on our society. Two prominent effects are the increased rates of both mental health symptoms and unemployment. <a href="https://www.pewresearch.org/fact-tank/2020/05/07/a-third-of-americans-experienced-high-levels-of-psychological-distress-during-the-coronavirus-outbreak/">A Pew research study</a> found that 33% of Americans have experienced significantly high levels of psychological distress since the pandemic began. The DSM-5 states that typical prevelence for Major Depressive Disorder in the US is 7% and for Generalized Anxiety Disorder it is 2.9%. While the the Pew survey captured a broad array of symptoms and its partcipants were not diagnosed and thus the DSM statistics can't be a direct comparison, it is a helpful reference for how common anxiety and depression were in the American population before the pandemic.
@@ -172,18 +178,49 @@ Looking at the univatiate skew tells us how close each feature's distribution is
 The close the skew is to 0, the more normal the distribution. This is interesting since many manchine learning algorithms
 assume a normal distribution of the features and therefore may be useful in feature selection.
 
-<img src='img/skew.jpg'>
+<img src='img/uni_skew.png'>
 
 
 ## MODELING
+
+### Cross Validation
+In order to best simulate a real-world scenario in production where the model will be exposed to new, unseen data, I have used the most strict implementation of cross validation in which I split the data twice. The first split creates hold-out data on which the model with the best validation scores will tested with. The second split is for creating the training and validation data on which to run initial testing.
+
+Also of note, stratified splits were used to keep the class balance represented withing the different splits.
+
+<img src='img/cross_val_diagram.jpg'>
+
+### Random Seed
+To ensure the various models are seeing the same data, the same random seed is being used for all data splits as well as for models that have random state parameters.
+
+### Deciding on a Scoring Metric
+Accuracy is the measure of the total number of predictions a model gets right. While a high accuracy score is attractive, it can be misleading, as it ignores how often a model gets a prediction wrong. This is especially relevant in unbalanced classes scenarios like this one. Here the greater numer of "employed" datapoints can skew the accuracy result, so it is not the most useful metric of choice. 
+
+A good way of deciding an alternative metric  that accounts for incorrect predictions is to ask, "What is the cost of an error?". 
+When the cost of a false positive, i.e. predicting someone will become unemployed but they don't, is high, precision the preferred measure. 
+On the other hand, when a false negative of predicing a person won't become unemployed but does, would be most costly, recall would be the metric of choice. This false negative scenario would likely be a case we would want to avoid the most. Therefore, recall is more important than precision or accuracy.
+
+Finally, <b>F1</b> is a balance of recall and precision. As expected it is somewhere in between the two, but it is <b>most helpful in situations where there is a class imbalance and there are more actual negatives</b>. This is the case with our data where we have about a 3:1 ratio of negative to positive target responses. <b>So the F1 score may be the best score for our case.</b>
+
 ### Baseline Models
-First let's see what performance we get from using all of the features with the default hyper-parameter values:
+First let's see what performance we get from using all of the features with the default hyper-parameter values.
+
+|Baseline Logistic Regression |Baseline Random Forest|
+|--- | --- |
+|<img src='img/conf_mat_baseline_log_reg.png'>|<img src='img/conf_mat_baseline_rand_for.png'>|
+|Accuracy: 0.76|Accuracy: 0.76|
+|Precision: 0.55|Precision: 0.57|
+|Recall: 0.35|Recall: 0.24|
+|F1: 0.43|F1: 0.33|
+
+
+<!--
 #### Baseline Logistic Regression
 <img src='img/conf_mat_baseline_log_reg.png'><br>
-Accuracy: 0.75<br>
-Precision: 0.5<br>
-Recall: 0.29<br>
-F1: 0.37<br>
+Accuracy: 0.76<br>
+Precision: 0.55<br>
+Recall: 0.35<br>
+F1: 0.43<br>
 
 #### Baseline Random Forest<br>
 <img src='img/conf_mat_baseline_rand_for.png'><br>
@@ -191,51 +228,53 @@ Accuracy: 0.76<br>
 Precision: 0.57<br>
 Recall: 0.24<br>
 F1: 0.33<br>
+-->
+#### Baseline Results
+Initially, the 2 models perform relativley similarly with decent accuracy, fair precision and poor recall. Though the Logistic Regression slightly performs a bit better with an F1 of .43, which is still a poor score as we see that the Logistic Regression is unable to correctly predict unemployment two-thirds of the time.
 
-#### Initial Results
-Initially, the 2 models perform similarly with decent accuracy, fair precision and poor recall. The poor recall has a strong effect on making the F1 score poor as well.
+### Hyperparameter Tuning with GridSearch
+Hyperparameters are adjustments that can be made by the data scientist to tune how the model is fitting the data. GridSearch is a function that allows for iterating through all the values of hyperparameters selected and finding the set of hyperparameter values that result in the best performing model. GridSearchCV was used here, which adds in cross-folds validation to ensure more reliable results.
 
-##### What is the best metric for this case? 
-While the high accuracy score is attractive, it can be misleading especially in unbalanced classes scenarios like this one. Here the greater numer of "employed" datapoints can skew the accuracy result, so it is not the most useful metric of choice. 
+Attention was paid to a good cross validation process, GridSearchCV was performed on the training and validation set in order to find the best hyperparameters to produce the highest F1 score. Then I fit a new model, using the holdout data in order to accurately compare this approach to the baseline models as well as for subsequent models.
 
-The cost of a false positive, i.e. predicting someone will become unemployed but they don't, is not likely a great concern. Precision is a reflection of this, so will not be the ideal metric in this case.
+|GridSearch Logistic Regression |GridSearchCV Random Forest|
+|--- | --- |
+|<img src='img/conf_mat_log_reg_gridsearch.png'>|<img src='img/conf_mat_rand_for_gridsearch.png'>|
+|Accuracy: 0.72|Accuracy: 0.76|
+|Precision: 0.46|Precision: 0.56|
+|Recall: 0.65|Recall: 0.29|
+|F1: 0.54|F1: 0.38|
 
-On the other hand, a false negative of predicing a person won't become unemployed but does, would mostly likely be a case we would want to avoid the most. Therefore, recall is more important than precision or accuracy.
-
-<b>F1</b> is a balance of recall and precision. As expected it is somewhere in between the two, but it is <b>most helpful in situations where there is a class imbalance and there are more actual negatives</b>. This is the case with our data where we have about a 3:1 ratio of negative to positive target responses. <b>So the F1 score may be the best score for our case.</b>
+#### GridSearchCV Results
+We see an mild improvement for the Logistic Regression, especially in terms of recall and F1. So the ability to correctly classify someone being unemployed has improved it worse at correctly classifying someone as employment, as seen in the lower precision score. Though since we are more interested in correct unemployment classification, this decrease in precision is an acceptable tradeoff. There was barely any improvement in the Random Forest. 
 
 ## Feature Selection Refinement
 ### Random Forest Feature Importances
-One of the benefits of the Random Forest model is it allows us to see which features were the most important.<br><br>
+One of the benefits of the Random Forest model its interpretability as is it allows us to see which features were the most important.<br><br>
 <img src='img/random_forest_feat_imps.png'>
 <br>
 
-Resume gaps and income, income information and time to complete were the highest by some margin. Interestingly only 1 mental health symptom, anxiety, made the top 20 most important features.
+Income information, resume gaps, and time to complete were the highest by some margin. Interestingly there were no mental health symptom in the top 20 most important features. However, this is of limited value given the poor performance of the Random Forest model. Let's implement a more comprehensive feature selection technique to see if that will improve results.
 
 ### Recursive Feature Elimiation
 This data set has a somewhat high number of features and many of them measure similar things. Reducing the number of features is likely to improve the model. We can use Recursive Feature Elimiation with Cross Validation (RFECV) to do this. I performed RFECV using F1 for scoring. 
-#### Random Forest
-Results indicate the best number of features to use is 5.<br>
-<img src='img/rand_forest_rfe_num_features.png'>
-<br>
-Here we see which were the best features of the group. The engineered feature 'time to complete' appears to be quite influential.
 
-Also of note is the similarity of the RFECV chosen features to the random forest feature importances idetified earlier. 
-<img src='img/rand_forest_rfe_top_features.png'>
+Again, attention was paid to a good cross validation process, RFECV was performed on the training and validation set in order to find the best set of features to produce the highest F1 score. Then I fit a new model, using the holdout data in order to accurately compare this approach to the previous models.
 
-When a new Random Forest was fit with this subset of features using the same data split as with previous models, we see a substatial increase in F1 score from 0.33 to 0.55
+Of note is the overlap of the RFECV chosen features to the random forest feature importances idetified earlier.
 
-Accuracy: 0.78<br>
-Precision: 0.56<br>
-Recall: 0.53<br>
-F1: 0.55<br>
-
-<img src='img/rand_forest_conf_mat_rfe.png'>
-
-Interestingly, when I ran RFECV with recall scoring and fit a Random Forest with the resulting feature subset I got an even higher F1 score of 0.67. However, the random seed chosen for the train-test-split may just happen to lead to a partciularly high F1 score and not be representative of performance on unseen data. While the RFECV with F1 scoring might not show as much improvement with this data split, it is likely a more reliable model for predicting new data since it is a cross-validated score and not a score generated from a single split.
-
+|RFECV Logistic Regression |RFECV Random Forest|
+|--- | --- |
+|<img src='img/logistic_regression_rfe_num_features.png'>|<img src='img/rand_forest_rfe_num_features.png'>|
+|<img src='img/logistic_regression_rfe_top_features.png'>|<img src='img/rand_forest_rfe_top_features.png'>|
+|<img src='img/logistic_regression_conf_mat_rfe.png'>|<img src='img/rand_forest_conf_mat_rfe.png'>|
+|Accuracy: 0.76|Accuracy: 0.82|
+|Precision: 0.55|Precision: 0.73|
+|Recall: 0.35|Recall: 0.47|
+|F1: 0.43|F1: 0.57|
+<!--
 #### Logistic Regression
-Results indicate the best number of features to use is 21.<br>
+Results indicate the best number of features to use is 33.<br>
 <img src='img/logistic_regression_rfe_num_features.png'>
 <br>
 Here we see which were the best features of the group. Again, disability, gaps in resume, and income
@@ -245,12 +284,35 @@ Also of note is the similarity of the RFECV chosen features to the random forest
 
 When a new Random Forest was fit with this subset of features using the same data split as with previous models, we see a substatial increase in F1 score from 0.33 to 0.55
 
-Accuracy: 0.75<br>
-Precision: 0.5<br>
-Recall: 0.24<br>
-F1: 0.32<br>
+Accuracy: 0.76<br>
+Precision: 0.55<br>
+Recall: 0.35<br>
+F1: 0.43<br>
 
 <img src='img/logistic_regression_conf_mat_rfe.png'>
+
+#### Random Forest
+Results indicate the best number of features to use is 19.<br>
+<img src='img/rand_forest_rfe_num_features.png'>
+<br>
+Here we see which were the best features of the group. The engineered feature 'time to complete' appears to be quite influential.
+
+Also of note is the overlap of the RFECV chosen features to the random forest feature importances idetified earlier. 
+<img src='img/rand_forest_rfe_top_features.png'>
+
+When a new Random Forest was fit with this subset of features using the same data split as with previous models, we see a substatial increase in F1 score from 0.33 to 0.55
+
+Accuracy: 0.82<br>
+Precision: 0.73<br>
+Recall: 0.47<br>
+F1: 0.57<br>
+
+<img src='img/rand_forest_conf_mat_rfe.png'>
+-->
+
+### RFE Results
+
+## Resampling Techniques - SMOTE
 
 ### Hyperparameter Tuning
 Gridsearch with Criss Validation was performed on the Random Forest model in order to find the best hyperparameters, however, it did not lead to an imporoved score.
@@ -259,6 +321,4 @@ Gridsearch with Criss Validation was performed on the Random Forest model in ord
 
 ## Additional Steps To Consider
 ### PCA
-### Class Balancing techniques
-Oversampling is likely the best candidate since we have relatively few datapoints.
 
