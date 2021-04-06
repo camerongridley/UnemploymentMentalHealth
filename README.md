@@ -2,7 +2,7 @@
 <img src='img/unemploy1.jpeg'>
 
 ## The Goal
-The purpose of this repo is to show my thought process and workflow for tackling a new data science project. I have chosen a classification problem that has messy data and is balanced combination of numerical and categorical data to fully illustrate all steps in the data cleaning, preprocessing and modeling steps of a project. Thus, it is highly tecnhcal and <b>not an example of a report to be delivered to non-data science teams or stakeholders.</b>
+The purpose of this repo is to show my thought process and workflow for tackling a new data science project. I have chosen a classification problem that has messy data and is balanced combination of numerical and categorical data to fully illustrate all steps in the data cleaning, preprocessing and modeling steps of a project. Thus, it is highly technical and <b>not an example of a report to be delivered to non-data science teams or stakeholders.</b>
 
 I have written up the main points in this README document and the detailed steps can be seen in the <a href='http://localhost:8888/notebooks/Projects/UnemploymentMentalHealth/notebooks/ModelingV3.ipynb'>EDA</a> and <a href='http://localhost:8888/notebooks/Projects/UnemploymentMentalHealth/notebooks/ModelingV3.ipynb'>Modeling</a> notebooks.
 
@@ -121,7 +121,7 @@ data['Start Date'] = pd.to_datetime(data['Start Date'])
 data['End Date'] = pd.to_datetime(data['End Date'])    
 ```
 
-#### Null Values
+#### Handling Null Values and Imputation
 Number of nulls per column
 
 <img src='img/nulls.jpg'>
@@ -313,7 +313,20 @@ F1: 0.57<br>
 ### RFE Results
 
 ## Resampling Techniques - SMOTE
+Added SMOTE to the RFECV process.<br>
 
+As we can see, SMOTE has properly balanced the classes.<br>
+<img src='img/class_rebalance_smote.png'>
+
+|RFECV/SMOTE Logistic Regression |RFECV/SMOTE Random Forest|
+|--- | --- |
+|<img src='img/logistic_regression_smote_rfe_num_features.png'>|<img src='img/rand_forest_smote_rfe_num_features.png'>|
+|<img src='img/logistic_regression_rfe_smote_top_features.png'>|<img src='img/rand_forest_smote_rfe_top_features.png'>|
+|<img src='img/logistic_regression_smote_conf_mat_rfe.png'>|<img src='img/rand_forest_smote_conf_mat_rfe.png'>|
+|Accuracy: 0.73|Accuracy: 0.83|
+|Precision: 0.71|Precision: 0.82|
+|Recall: 0.76|Recall: 0.84|
+|F1: 0.73|F1: 0.83|
 ### Hyperparameter Tuning
 Gridsearch with Criss Validation was performed on the Random Forest model in order to find the best hyperparameters, however, it did not lead to an imporoved score.
 
