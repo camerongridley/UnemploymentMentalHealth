@@ -4,7 +4,7 @@
 ## The Goal
 The purpose of this repo is to show my thought process and workflow for tackling a new data science project. I have chosen a classification problem that has messy data and is balanced combination of numerical and categorical data to fully illustrate all steps in the data cleaning, preprocessing and modeling steps of a project. Thus, it is highly technical and not an example of a report to be delivered to non-data science teams or stakeholders.
 
-I have written up the main points in this README document and the detailed steps can be seen in the <a href='http://localhost:8888/notebooks/Projects/UnemploymentMentalHealth/notebooks/ModelingV3.ipynb'>EDA</a> and <a href='http://localhost:8888/notebooks/Projects/UnemploymentMentalHealth/notebooks/ModelingV3.ipynb'>Modeling</a> notebooks.
+I have written up the main points in this README document and the detailed steps can be seen in the <a href='https://github.com/camerongridley/UnemploymentMentalHealth/blob/main/notebooks/preprocessing%20and%20eda.ipynb'>EDA</a> and <a href='http://localhost:8888/notebooks/Projects/UnemploymentMentalHealth/notebooks/ModelingV3.ipynb'>Modeling</a> notebooks.
 
 
 ## The Problem
@@ -32,47 +32,6 @@ This data looks at a single point in time as it was captured over a period of tw
 The survey contained a mix of yes/no, open-ended and multiple choice questions:
 
 <img src='img/info.jpg'>
-<!--  - Respondent ID
-- Collector ID
-- IP Address
-- Email Address
-- First Name
-- Last Name
-- I identify as having a mental illness
-- Education   
-- I have my own computer separate from a smart phone   
-- I have been hospitalized before for my mental illness   
-- How many days were you hospitalized for your mental illness   
-- I am currently employed at least part-time   
-- I am legally disabled   
-- I have my regular access to the internet   
-- I live with my parents   
-- I have a gap in my resume   
-- Total length of any gaps in my resume in&nbsp;months.   
-- Annual income (including any social welfare programs) in USD   
-- I am unemployed   
-- I read outside of work and school   
-- Annual income from social welfare programs   
-- I receive food stamps   
-- I am on section 8 housing   
-- How many times were you hospitalized for your mental illness   
-- Age   
-- Gender   
-- Household Income   
-- Region   
-- Device Type
-- I have one of the following&nbsp;issues in addition to my illness:
-    -    Lack of concentration
-    -    Anxiety
-    -    Depression
-    -    Obsessive thinking
-    -    Mood swings
-    -    Panic attacks
-    -    Compulsive behavior
-    -    Tiredness
--->
-
-
 
 ### Data Cleaning and Pre-processing
 The dataset needed quite a bit of cleaning and processing.
@@ -208,27 +167,12 @@ First let's see what performance we get from using all of the features with the 
 |Baseline Logistic Regression |Baseline Random Forest|
 |--- | --- |
 |<img src='img/conf_mat_baseline_log_reg.png'>|<img src='img/conf_mat_baseline_rand_for.png'>|
+|<b>Holdout Data Scores</b>||
 |Accuracy: 0.76|Accuracy: 0.76|
 |Precision: 0.55|Precision: 0.57|
 |Recall: 0.35|Recall: 0.24|
 |F1: 0.43|F1: 0.33|
 
-
-<!--
-#### Baseline Logistic Regression
-<img src='img/conf_mat_baseline_log_reg.png'><br>
-Accuracy: 0.76<br>
-Precision: 0.55<br>
-Recall: 0.35<br>
-F1: 0.43<br>
-
-#### Baseline Random Forest<br>
-<img src='img/conf_mat_baseline_rand_for.png'><br>
-Accuracy: 0.76<br>
-Precision: 0.57<br>
-Recall: 0.24<br>
-F1: 0.33<br>
--->
 #### Baseline Results
 Initially, the 2 models perform relatively similarly with decent accuracy, fair precision and poor recall. Though the Logistic Regression slightly performs a bit better with an F1 of .43, which is still a poor score as we see that the Logistic Regression is unable to correctly predict unemployment two-thirds of the time.
 
@@ -240,6 +184,7 @@ Attention was paid to a good cross validation process, GridSearchCV was performe
 |GridSearch Logistic Regression |GridSearchCV Random Forest|
 |--- | --- |
 |<img src='img/conf_mat_log_reg_gridsearch.png'>|<img src='img/conf_mat_rand_for_gridsearch.png'>|
+|<b>Holdout Data Scores</b>||
 |Accuracy: 0.72|Accuracy: 0.76|
 |Precision: 0.46|Precision: 0.56|
 |Recall: 0.65|Recall: 0.29|
@@ -266,54 +211,20 @@ Of note is the overlap of the RFECV chosen features to the random forest feature
 |RFECV Logistic Regression |RFECV Random Forest|
 |--- | --- |
 |<img src='img/logistic_regression_rfe_num_features.png'>|<img src='img/rand_forest_rfe_num_features.png'>|
+|<b>RFECV Selected Features</b>||
 |<img src='img/logistic_regression_rfe_top_features.png'>|<img src='img/rand_forest_rfe_top_features.png'>|
 |<img src='img/logistic_regression_conf_mat_rfe.png'>|<img src='img/rand_forest_conf_mat_rfe.png'>|
+|<b>Holdout Data Scores</b>||
 |Accuracy: 0.76|Accuracy: 0.82|
 |Precision: 0.55|Precision: 0.73|
 |Recall: 0.35|Recall: 0.47|
 |F1: 0.43|F1: 0.57|
-<!--
-#### Logistic Regression
-Results indicate the best number of features to use is 33.<br>
-<img src='img/logistic_regression_rfe_num_features.png'>
-<br>
-Here we see which were the best features of the group. Again, disability, gaps in resume, and income
-
-Also of note is the similarity of the RFECV chosen features to the random forest feature importances idetified earlier. 
-<img src='img/logistic_regression_rfe_top_features.png'>
-
-When a new Random Forest was fit with this subset of features using the same data split as with previous models, we see a substatial increase in F1 score from 0.33 to 0.55
-
-Accuracy: 0.76<br>
-Precision: 0.55<br>
-Recall: 0.35<br>
-F1: 0.43<br>
-
-<img src='img/logistic_regression_conf_mat_rfe.png'>
-
-#### Random Forest
-Results indicate the best number of features to use is 19.<br>
-<img src='img/rand_forest_rfe_num_features.png'>
-<br>
-Here we see which were the best features of the group. The engineered feature 'time to complete' appears to be quite influential.
-
-Also of note is the overlap of the RFECV chosen features to the random forest feature importances idetified earlier. 
-<img src='img/rand_forest_rfe_top_features.png'>
-
-When a new Random Forest was fit with this subset of features using the same data split as with previous models, we see a substatial increase in F1 score from 0.33 to 0.55
-
-Accuracy: 0.82<br>
-Precision: 0.73<br>
-Recall: 0.47<br>
-F1: 0.57<br>
-
-<img src='img/rand_forest_conf_mat_rfe.png'>
--->
 
 ### RFE Results
+With the feature set reduced, we see a significant improvement in the Random Forest but a decline in the Logistic Regression performance. Still, both models' F1 score is mediocre. The fact that the classes are so imbalanced is likely having a big impact on how well the model can be trained.
 
 ## Resampling Techniques - SMOTE
-Added SMOTE to the RFECV process.<br>
+One way of balancing the classes to improve representation of both classes is resampling. SMOTE is a oversampling technique that overcomes much of the overfitting problems associated with random oversampling.<br>
 
 As we can see, SMOTE has properly balanced the classes.<br>
 <img src='img/class_rebalance_smote.png'>
@@ -321,12 +232,33 @@ As we can see, SMOTE has properly balanced the classes.<br>
 |RFECV/SMOTE Logistic Regression |RFECV/SMOTE Random Forest|
 |--- | --- |
 |<img src='img/logistic_regression_smote_rfe_num_features.png'>|<img src='img/rand_forest_smote_rfe_num_features.png'>|
-|<img src='img/logistic_regression_rfe_smote_top_features.png'>|<img src='img/rand_forest_smote_rfe_top_features.png'>|
+|<b>RFECV Selected Features</b>||
+|<img src='img/logistic_regression_smote_rfe_top_features.png'>|<img src='img/rand_forest_smote_rfe_top_features.png'>|
 |<img src='img/logistic_regression_smote_conf_mat_rfe.png'>|<img src='img/rand_forest_smote_conf_mat_rfe.png'>|
-|Accuracy: 0.73|Accuracy: 0.83|
-|Precision: 0.71|Precision: 0.82|
-|Recall: 0.76|Recall: 0.84|
-|F1: 0.73|F1: 0.83|
+|<b>Holdout Data Scores</b>||
+|Accuracy: 0.71|Accuracy: 0.80|
+|Precision: 0.69|Precision: 0.82|
+|Recall: 0.76|Recall: 0.76|
+|F1: 0.72|F1: 0.79|
+
+
+
+<!-- Replaced with bar charts
+#### Top 10 Logistic Regression Feature Coefficients
+|Feature Name|Coefficient|
+|--- |--- |
+|Device Type_Other                                                |7.97|
+|I am legally disabled                                            |3.38|
+|Region_East North Central                                        |2.98|
+|Panic_attacks                                                    |2.59|
+|I receive food stamps                                            |2.45|
+|I have been hospitalized before for my mental illness 	          |2.00|
+|I have a gap in my resume 	                                      |1.75|
+|Region_Mountain 	                                              |1.60|
+|Mood_swings 	                                                  |1.44|
+|Depression 	                                                  |1.26|
+
+<br>
 
 #### Top 10 Random Forest Feature Importances
 |Feature Name|Importance|
@@ -343,14 +275,25 @@ As we can see, SMOTE has properly balanced the classes.<br>
 |I have my own computer separate from a smart phone              |0.037|
 
 When compared to the top features of the previous random forests, many of the top features have stayed the same, especially those related to wealth and previous unemployment (i.e. gaps in resume). Interestingly, 'Age' and 'I am legally disabled' fell off the list. Given that the previous models were poor performers. "Time to complete" also continues to be an important feature. 
-
+-->
 ### SMOTE Results
-A common problem with SMOTE is that is tends to overfit. However, the final scores using the holdout data indicate that it is not a significant problem here. 
+As hoped, using SMOTE helps significantly and we get the best performance thus far for both models. Looking at our target metric of F1 score, Logistic Regression and Random Forest perform very similarly (.72 vs .79). At this point, picking a model comes down to how useful, and therefore interpretable, it is. Both algorithms have ways of looking at what factors are influencing performance. Logistic Regression has feature coefficients which can be converted to odds and Random forest has feature importances which is based on Gini impurity/information gain (entropy).
+
+Odds are more understandable than entropy so Logistic Regression tends to be more useful for interpretation.
+
+<img src='img/logistic_regression_top_coeffs.png'>
+<img src='img/rand_forest_top_importances.png'>|
+
+Both models find a history of unemployment and the East_North_Central region to be key in predicting future unemployment. Interesting, they diverge a bit from there. Logistic Regression identifies specific mental health symptoms of Panic Attacks, Mood Swings and Depression as well as Disability as strong influences. Random Forest indicates that income and time_to_complete are some of the most important features.
+
+Of note is that Device Type_Other is the top Logistic Regression feature and very few respondents selected this option. I have no additional information about what this designation means but given the small number of people who endorsed it, caution should be used in the validity of it's weight.
+
+While SMOTE mitigates much of the overfitting seen with some other oversampling techniques, it still a risk. However, the final scores using the holdout data indicate that overfitting is not a significant problem here. 
+
 ### Hyperparameter Tuning
 Gridsearch with Cross Validation was performed on the Random Forest model in order to find the best hyperparameters, however, it did not lead to an improved score.
 
-## Real World Implications
-An inherent problem with this data set is it's small size.
+## Summary
+With several data science tools, I was able to improve F1 scores for a Logistic Regression model from .43 to .72 and a Random Forest model from .33 to .79. While the Random Forest slightly outperforms the Logistic Regression, the Logistic Regression's interpretability may make it the preferred model for clinical use in predicting unemployment of patients.
 
-See a tradeoff 
 
